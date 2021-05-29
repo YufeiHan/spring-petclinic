@@ -15,23 +15,13 @@
  */
 package org.springframework.samples.petclinic.vet;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlElement;
-
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.samples.petclinic.model.Person;
+
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlElement;
+import java.util.*;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -44,6 +34,24 @@ import org.springframework.samples.petclinic.model.Person;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+
+//	public void setSpecialties(String[] specialties) {
+//		this.specialties = new HashSet<>();
+//		Specialty radiology = new Specialty();
+//		radiology.setId(1);
+//		radiology.setName("radiology");
+//		this.addSpecialty(radiology);
+//
+////		for (String str : specialties) {
+////			this.specialties.add(new Specialty(str));
+////		}
+//		System.out.println("-----------------");
+//		System.out.println(specialties.length);
+//	}
+//
+//	public void setSpecialties(Set<Specialty> specialties) {
+//		this.specialties = specialties;
+//	}
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),

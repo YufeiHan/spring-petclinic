@@ -15,10 +15,15 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -30,10 +35,20 @@ import java.util.Map;
 @Controller
 class VetController {
 
-	private final VetRepository vets;
+	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
-	public VetController(VetRepository clinicService) {
-		this.vets = clinicService;
+	private final VetRepository vetRepository;
+	private final SpecialtyRepository specialtyRepository;
+
+	@Autowired
+	public VetController(VetRepository clinicService, SpecialtyRepository specialtyRepository) {
+		this.vetRepository = clinicService;
+		this.specialtyRepository = specialtyRepository;
+	}
+
+	@ModelAttribute("specialtiesList")
+	public Collection<Specialty> populateSpecialties() {
+		return specialtyRepository.findAll();
 	}
 
 	@GetMapping("/vets.html")
@@ -41,7 +56,7 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vets.findAll());
+		vets.getVetList().addAll(this.vetRepository.findAll());
 		model.put("vets", vets);
 		return "vets/vetList";
 	}
@@ -51,8 +66,30 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vets.findAll());
+		vets.getVetList().addAll(this.vetRepository.findAll());
 		return vets;
+	}
+
+	@GetMapping("/vets/new")
+	public String initCreationForm(Map<String, Object> model) {
+		Vet vet = new Vet();
+		model.put("vet", vet);
+		return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping("/vets/new")
+	public String processCreationForm(String[] specialties, Vet vet, BindingResult result) {
+		if (result.hasErrors()) {
+			return VIEWS_VET_CREATE_OR_UPDATE_FORM;
+		}
+		if (specialties != null) {
+			for (String specialtyName : specialties) {
+				Specialty specialty = specialtyRepository.findByName(specialtyName);
+				vet.addSpecialty(specialty);
+			}
+		}
+		this.vetRepository.save(vet);
+		return "redirect:/vets.html";
 	}
 
 }
