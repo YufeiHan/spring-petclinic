@@ -51,3 +51,6 @@ INSERT INTO visits VALUES (1, 7, '2013-01-01', 'rabies shot');
 INSERT INTO visits VALUES (2, 8, '2013-01-02', 'rabies shot');
 INSERT INTO visits VALUES (3, 8, '2013-01-03', 'neutered');
 INSERT INTO visits VALUES (4, 7, '2013-01-04', 'spayed');
+
+INSERT INTO appointments VALUES (1, 4, 1, '2021-06-01 08:00:00', '2021-06-01 09:00:00', 'spayed');
+INSERT INTO appointments VALUES (2, 4, 1, '2021-06-01 10:00:00', '2021-06-01 11:00:00', 'vaccine');
