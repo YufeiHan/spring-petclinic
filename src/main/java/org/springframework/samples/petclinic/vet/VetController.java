@@ -16,12 +16,15 @@
 package org.springframework.samples.petclinic.vet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.appointment.Appointment;
+import org.springframework.samples.petclinic.appointment.AppointmentRepository;
+import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.samples.petclinic.owner.Pet;
+import org.springframework.samples.petclinic.owner.PetRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Collection;
 import java.util.Map;
@@ -39,11 +42,15 @@ class VetController {
 
 	private final VetRepository vetRepository;
 	private final SpecialtyRepository specialtyRepository;
+	private final AppointmentRepository appointmentRepository;
+	private final PetRepository petRepository;
 
 	@Autowired
-	public VetController(VetRepository clinicService, SpecialtyRepository specialtyRepository) {
+	public VetController(VetRepository clinicService, SpecialtyRepository specialtyRepository, AppointmentRepository appointmentRepository, PetRepository petRepository) {
 		this.vetRepository = clinicService;
 		this.specialtyRepository = specialtyRepository;
+		this.appointmentRepository = appointmentRepository;
+		this.petRepository = petRepository;
 	}
 
 	@ModelAttribute("specialtiesList")
@@ -92,4 +99,21 @@ class VetController {
 		return "redirect:/vets.html";
 	}
 
+	@GetMapping("/vets/{vetId}")
+	public ModelAndView showVet(@PathVariable("vetId") Integer vetId) {
+		ModelAndView mav = new ModelAndView("vets/vetDetails");
+		Vet vet = vetRepository.findById(vetId);
+
+		Collection<Appointment> appointments = appointmentRepository.findByVetId(vetId);
+		for (Appointment appointment : appointments) {
+			Pet pet = petRepository.findById(appointment.getPetId());
+			appointment.setPetName(pet.getName());
+			Owner owner = pet.getOwner();
+			appointment.setOwnerName(owner.getFirstName() + " " + owner.getLastName());
+		}
+		vet.setAppointmentInternal(appointments);
+
+		mav.addObject(vet);
+		return mav;
+	}
 }

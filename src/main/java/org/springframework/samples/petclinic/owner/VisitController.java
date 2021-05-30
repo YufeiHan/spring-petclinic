@@ -120,8 +120,14 @@ class VisitController {
 	}
 
 	@RequestMapping("/owners/{ownerId}/pets/*/appointments/{appointmentId}/delete")
-	public String deleteAppointmentById(@PathVariable Integer appointmentId) {
+	public String deleteAppointmentByIdFromOwner(@PathVariable Integer appointmentId) {
 		appointmentRepository.deleteById(appointmentId);
 		return "redirect:/owners/{ownerId}";
+	}
+
+	@RequestMapping("/vets/{vetId}/appointments/{appointmentId}/delete")
+	public String deleteAppointmentByIdFromVet(@PathVariable Integer appointmentId) {
+		appointmentRepository.deleteById(appointmentId);
+		return "redirect:/vets/{vetId}";
 	}
 }

@@ -45,6 +45,11 @@ public class Appointment extends BaseEntity {
 	@Transient
 	private String vetName;
 
+	@Transient
+	private String petName;
+
+	@Transient
+	private String ownerName;
 
 	public LocalDate getStartDate() {
 		return startDate;
@@ -100,5 +105,21 @@ public class Appointment extends BaseEntity {
 
 	public void setVetName(String vetName) {
 		this.vetName = vetName;
+	}
+
+	public String getPetName() {
+		return petName;
+	}
+
+	public void setPetName(String petName) {
+		this.petName = petName;
+	}
+
+	public String getOwnerName() {
+		return ownerName;
+	}
+
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
 	}
 }

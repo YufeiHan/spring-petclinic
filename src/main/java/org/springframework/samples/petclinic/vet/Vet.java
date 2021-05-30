@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.vet;
 
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
+import org.springframework.samples.petclinic.appointment.Appointment;
 import org.springframework.samples.petclinic.model.Person;
 
 import javax.persistence.*;
@@ -58,6 +59,9 @@ public class Vet extends Person {
 			inverseJoinColumns = @JoinColumn(name = "specialty_id"))
 	private Set<Specialty> specialties;
 
+	@Transient
+	private Set<Appointment> appointments = new LinkedHashSet<>();
+
 	protected Set<Specialty> getSpecialtiesInternal() {
 		if (this.specialties == null) {
 			this.specialties = new HashSet<>();
@@ -84,4 +88,25 @@ public class Vet extends Person {
 		getSpecialtiesInternal().add(specialty);
 	}
 
+	protected Set<Appointment> getAppointmentsInternal() {
+		if (this.appointments == null) {
+			this.appointments = new HashSet<>();
+		}
+		return this.appointments;
+	}
+
+	protected void setAppointmentInternal(Collection<Appointment> appointments) {
+		this.appointments = new LinkedHashSet<>(appointments);
+	}
+
+	public List<Appointment> getAppointments() {
+		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("date", false, false));
+		return Collections.unmodifiableList(sortedAppointments);
+	}
+
+	public void addAppointment(Appointment appointment) {
+		getAppointmentsInternal().add(appointment);
+		appointment.setPetId(this.getId());
+	}
 }

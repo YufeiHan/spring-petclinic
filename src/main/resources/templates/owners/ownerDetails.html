@@ -83,7 +83,7 @@
               <td th:text="${#temporals.format(appointment.startDate, 'yyyy-MM-dd')}"></td>
               <td th:text="${appointment?.vetName}"></td>
               <td th:text="${appointment?.description}"></td>
-              <td><a th:href="@{{ownerId}/pets/{petId}/appointments/{appointmentId}/delete(ownerId=${owner.id},petId=${pet.id},appointmentId=${appointment.id})}">Cancel</a></td>
+              <td><a th:href="@{/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete(ownerId=${owner.id},petId=${pet.id},appointmentId=${appointment.id})}">Cancel</a></td>
             </tr>
             <tr>
               <td colspan="2"><a th:href="@{{ownerId}/pets/{petId}/appointments/new(ownerId=${owner.id},petId=${pet.id})}">Add Appointment</a></td>

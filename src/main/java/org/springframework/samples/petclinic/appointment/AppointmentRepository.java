@@ -28,6 +28,8 @@ public interface AppointmentRepository extends Repository<Appointment, Integer> 
 
 	List<Appointment> findByPetId(Integer petId);
 
+	List<Appointment> findByVetId(Integer vetId);
+
 	void deleteById(Integer id);
 }
 
