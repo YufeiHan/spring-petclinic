@@ -27,5 +27,7 @@ public interface AppointmentRepository extends Repository<Appointment, Integer> 
 	Collection<Appointment> findAll() throws DataAccessException;
 
 	List<Appointment> findByPetId(Integer petId);
+
+	void deleteById(Integer id);
 }
 

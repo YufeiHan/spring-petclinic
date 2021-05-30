@@ -15,20 +15,21 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import java.util.Map;
-
-import javax.validation.Valid;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.appointment.Appointment;
+import org.springframework.samples.petclinic.appointment.AppointmentRepository;
+import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Juergen Hoeller
@@ -40,13 +41,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 class VisitController {
 
-	private final VisitRepository visits;
+	private final PetRepository petRepository;
+	private final VisitRepository visitRepository;
+	private final AppointmentRepository appointmentRepository;
+	private final VetRepository vetRepository;
 
-	private final PetRepository pets;
-
-	public VisitController(VisitRepository visits, PetRepository pets) {
-		this.visits = visits;
-		this.pets = pets;
+	@Autowired
+	public VisitController(PetRepository petRepository, VisitRepository visitRepository, AppointmentRepository appointmentRepository, VetRepository vetRepository) {
+		this.petRepository = petRepository;
+		this.visitRepository = visitRepository;
+		this.appointmentRepository = appointmentRepository;
+		this.vetRepository = vetRepository;
 	}
 
 	@InitBinder
@@ -54,39 +59,69 @@ class VisitController {
 		dataBinder.setDisallowedFields("id");
 	}
 
-	/**
-	 * Called before each and every @RequestMapping annotated method. 2 goals: - Make sure
-	 * we always have fresh data - Since we do not use the session scope, make sure that
-	 * Pet object always has an id (Even though id is not part of the form fields)
-	 * @param petId
-	 * @return Pet
-	 */
-	@ModelAttribute("visit")
-	public Visit loadPetWithVisit(@PathVariable("petId") int petId, Map<String, Object> model) {
-		Pet pet = this.pets.findById(petId);
-		pet.setVisitsInternal(this.visits.findByPetId(petId));
-		model.put("pet", pet);
-		Visit visit = new Visit();
-		pet.addVisit(visit);
-		return visit;
+	@ModelAttribute("vetsList")
+	public Collection<Vet> populateVets() {
+		return vetRepository.findAll();
 	}
 
-	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is called
+	private void loadPetWithVisit(Integer petId, Map<String, Object> model) {
+		Pet pet = petRepository.findById(petId);
+		pet.setVisitsInternal(visitRepository.findByPetId(petId));
+		model.put("pet", pet);
+
+		Visit visit = new Visit();
+		pet.addVisit(visit);
+		model.put("visit", visit);
+	}
+
 	@GetMapping("/owners/*/pets/{petId}/visits/new")
-	public String initNewVisitForm(@PathVariable("petId") int petId, Map<String, Object> model) {
+	public String initNewVisitForm(@PathVariable("petId") Integer petId, Map<String, Object> model) {
+		loadPetWithVisit(petId, model);
 		return "pets/createOrUpdateVisitForm";
 	}
 
-	// Spring MVC calls method loadPetWithVisit(...) before processNewVisitForm is called
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@Valid Visit visit, BindingResult result) {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
-		else {
-			this.visits.save(visit);
-			return "redirect:/owners/{ownerId}";
-		}
+		visitRepository.save(visit);
+		return "redirect:/owners/{ownerId}";
 	}
 
+	private void loadPetWithAppointment(Integer petId, Map<String, Object> model) {
+		Pet pet = petRepository.findById(petId);
+		Collection<Appointment> appointments = appointmentRepository.findByPetId(petId);
+		for (Appointment appointment : appointments) {
+			Vet vet = vetRepository.findById(appointment.getVetId());
+			appointment.setVetName(vet.getFirstName() + " " + vet.getLastName());
+		}
+		pet.setAppointmentInternal(appointments);
+		model.put("pet", pet);
+
+		Appointment appointment = new Appointment();
+		pet.addAppointment(appointment);
+		model.put("appointment", appointment);
+	}
+
+	@GetMapping("/owners/*/pets/{petId}/appointments/new")
+	public String initNewAppointmentForm(@PathVariable("petId") Integer petId, Map<String, Object> model) {
+		loadPetWithAppointment(petId, model);
+		return "pets/createOrUpdateAppointmentForm";
+	}
+
+	@PostMapping("/owners/{ownerId}/pets/*/appointments/new")
+	public String processNewAppointmentForm(@Valid Appointment appointment, BindingResult result) {
+		if (result.hasErrors()) {
+			return "pets/createOrUpdateAppointmentForm";
+		}
+		appointmentRepository.save(appointment);
+		return "redirect:/owners/{ownerId}";
+	}
+
+	@RequestMapping("/owners/{ownerId}/pets/*/appointments/{appointmentId}/delete")
+	public String deleteAppointmentById(@PathVariable Integer appointmentId) {
+		appointmentRepository.deleteById(appointmentId);
+		return "redirect:/owners/{ownerId}";
+	}
 }

@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 
-<html xmlns:th="https://www.thymeleaf.org"
-  th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
 
   <body>
-  
-  
+
     <h2>Owner Information</h2>
-  
-  
+
     <table class="table table-striped" th:object="${owner}">
       <tr>
         <th>Name</th>
@@ -50,7 +47,10 @@
               th:text="${#temporals.format(pet.birthDate, 'yyyy-MM-dd')}"></dd>
             <dt>Type</dt>
             <dd th:text="${pet.type}"></dd>
+            <dt style="font-weight: normal;"><a th:href="@{{ownerId}/pets/{petId}/edit(ownerId=${owner.id},petId=${pet.id})}">Edit Pet</a></dt>
+            <dd></dd>
           </dl>
+
         </td>
         <td valign="top">
           <table class="table-condensed">
@@ -65,12 +65,28 @@
               <td th:text="${visit?.description}"></td>
             </tr>
             <tr>
-              <td><a
-                th:href="@{{ownerId}/pets/{petId}/edit(ownerId=${owner.id},petId=${pet.id})}">Edit
-                  Pet</a></td>
-              <td><a
-                th:href="@{{ownerId}/pets/{petId}/visits/new(ownerId=${owner.id},petId=${pet.id})}">Add
-                  Visit</a></td>
+              <td colspan="2"><a th:href="@{{ownerId}/pets/{petId}/visits/new(ownerId=${owner.id},petId=${pet.id})}">Add Visit</a></td>
+            </tr>
+          </table>
+        </td>
+        <td valign="top">
+          <table class="table-condensed">
+            <thead>
+            <tr>
+              <th>Appointment Date</th>
+              <th>Vet</th>
+              <th>Description</th>
+              <th></th>
+            </tr>
+            </thead>
+            <tr th:each="appointment : ${pet.appointments}">
+              <td th:text="${#temporals.format(appointment.startDate, 'yyyy-MM-dd')}"></td>
+              <td th:text="${appointment?.vetName}"></td>
+              <td th:text="${appointment?.description}"></td>
+              <td><a th:href="@{{ownerId}/pets/{petId}/appointments/{appointmentId}/delete(ownerId=${owner.id},petId=${pet.id},appointmentId=${appointment.id})}">Cancel</a></td>
+            </tr>
+            <tr>
+              <td colspan="2"><a th:href="@{{ownerId}/pets/{petId}/appointments/new(ownerId=${owner.id},petId=${pet.id})}">Add Appointment</a></td>
             </tr>
           </table>
         </td>

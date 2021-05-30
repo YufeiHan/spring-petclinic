@@ -15,6 +15,11 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.samples.petclinic.appointment.Appointment;
+import org.springframework.samples.petclinic.appointment.AppointmentRepository;
+import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,13 +46,18 @@ class OwnerController {
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
-	private final OwnerRepository owners;
+	private final OwnerRepository ownerRepository;
+	private final VisitRepository visitRepository;
+	private final AppointmentRepository appointmentRepository;
+	private final VetRepository vetRepository;
 
-	private VisitRepository visits;
-
-	public OwnerController(OwnerRepository clinicService, VisitRepository visits) {
-		this.owners = clinicService;
-		this.visits = visits;
+	@Autowired
+	public OwnerController(OwnerRepository clinicService, VisitRepository visitRepository,
+						   AppointmentRepository appointmentRepository, VetRepository vetRepository) {
+		this.ownerRepository = clinicService;
+		this.visitRepository = visitRepository;
+		this.appointmentRepository = appointmentRepository;
+		this.vetRepository = vetRepository;
 	}
 
 	@InitBinder
@@ -68,7 +78,7 @@ class OwnerController {
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 		else {
-			this.owners.save(owner);
+			this.ownerRepository.save(owner);
 			return "redirect:/owners/" + owner.getId();
 		}
 	}
@@ -88,18 +98,16 @@ class OwnerController {
 		}
 
 		// find owners by last name
-		Collection<Owner> results = this.owners.findByLastName(owner.getLastName());
+		Collection<Owner> results = this.ownerRepository.findByLastName(owner.getLastName());
 		if (results.isEmpty()) {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
 			return "owners/findOwners";
-		}
-		else if (results.size() == 1) {
+		} else if (results.size() == 1) {
 			// 1 owner found
 			owner = results.iterator().next();
 			return "redirect:/owners/" + owner.getId();
-		}
-		else {
+		} else {
 			// multiple owners found
 			model.put("selections", results);
 			return "owners/ownersList";
@@ -108,7 +116,7 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm(@PathVariable("ownerId") int ownerId, Model model) {
-		Owner owner = this.owners.findById(ownerId);
+		Owner owner = this.ownerRepository.findById(ownerId);
 		model.addAttribute(owner);
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
@@ -121,7 +129,7 @@ class OwnerController {
 		}
 		else {
 			owner.setId(ownerId);
-			this.owners.save(owner);
+			this.ownerRepository.save(owner);
 			return "redirect:/owners/{ownerId}";
 		}
 	}
@@ -134,9 +142,15 @@ class OwnerController {
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
-		Owner owner = this.owners.findById(ownerId);
+		Owner owner = this.ownerRepository.findById(ownerId);
 		for (Pet pet : owner.getPets()) {
-			pet.setVisitsInternal(visits.findByPetId(pet.getId()));
+			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
+			Collection<Appointment> appointments = appointmentRepository.findByPetId(pet.getId());
+			for (Appointment appointment : appointments) {
+				Vet vet = vetRepository.findById(appointment.getVetId());
+				appointment.setVetName(vet.getFirstName() + " " + vet.getLastName());
+			}
+			pet.setAppointmentInternal(appointments);
 		}
 		mav.addObject(owner);
 		return mav;

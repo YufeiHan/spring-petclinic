@@ -15,27 +15,16 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.springframework.beans.support.MutableSortDefinition;
 import org.springframework.beans.support.PropertyComparator;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.samples.petclinic.appointment.Appointment;
 import org.springframework.samples.petclinic.model.NamedEntity;
 import org.springframework.samples.petclinic.visit.Visit;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+import java.util.*;
 
 /**
  * Simple business object representing a pet.
@@ -62,6 +51,9 @@ public class Pet extends NamedEntity {
 
 	@Transient
 	private Set<Visit> visits = new LinkedHashSet<>();
+
+	@Transient
+	private Set<Appointment> appointments = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
@@ -109,4 +101,25 @@ public class Pet extends NamedEntity {
 		visit.setPetId(this.getId());
 	}
 
+	protected Set<Appointment> getAppointmentsInternal() {
+		if (this.appointments == null) {
+			this.appointments = new HashSet<>();
+		}
+		return this.appointments;
+	}
+
+	protected void setAppointmentInternal(Collection<Appointment> appointments) {
+		this.appointments = new LinkedHashSet<>(appointments);
+	}
+
+	public List<Appointment> getAppointments() {
+		List<Appointment> sortedAppointments = new ArrayList<>(getAppointmentsInternal());
+		PropertyComparator.sort(sortedAppointments, new MutableSortDefinition("date", false, false));
+		return Collections.unmodifiableList(sortedAppointments);
+	}
+
+	public void addAppointment(Appointment appointment) {
+		getAppointmentsInternal().add(appointment);
+		appointment.setPetId(this.getId());
+	}
 }

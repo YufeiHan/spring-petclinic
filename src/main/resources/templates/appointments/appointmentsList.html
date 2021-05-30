@@ -10,15 +10,15 @@
 <table id="appointments" class="table table-striped">
   <thead>
   <tr>
-    <th>Start Time</th>
-    <th>End Time</th>
+    <th>Start Date</th>
+    <th>End Date</th>
     <th>Description</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="appointment : ${appointments}">
-    <td th:text="${appointment.startTime}"></td>
-    <td th:text="${appointment.endTime}"></td>
+    <td th:text="${appointment.startDate}"></td>
+    <td></td>
     <td th:text="${appointment.description}"></td>
   </tr>
   </tbody>
