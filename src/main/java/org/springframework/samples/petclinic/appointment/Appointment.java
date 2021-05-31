@@ -8,7 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotEmpty;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * Simple JavaBean domain object representing an appointment.
@@ -20,17 +20,17 @@ import java.time.LocalDate;
 @Table(name = "appointments")
 public class Appointment extends BaseEntity {
 
-//	@Column(name = "start_time")
-//	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm a")
-//	private LocalDateTime startTime;
-//
+	@Column(name = "start_time")
+	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm a")
+	private LocalDateTime startTime;
+
 //	@Column(name = "end_time")
 //	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm a")
 //	private LocalDateTime endTime;
 
-	@Column(name = "start_date")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private LocalDate startDate;
+//	@Column(name = "start_date")
+//	@DateTimeFormat(pattern = "yyyy-MM-dd")
+//	private LocalDate startDate;
 
 	@NotEmpty
 	@Column(name = "description")
@@ -51,22 +51,22 @@ public class Appointment extends BaseEntity {
 	@Transient
 	private String ownerName;
 
-	public LocalDate getStartDate() {
-		return startDate;
-	}
-
-	public void setStartDate(LocalDate startDate) {
-		this.startDate = startDate;
-	}
-
-//	public LocalDateTime getStartTime() {
-//		return startTime;
+//	public LocalDate getStartDate() {
+//		return startDate;
 //	}
 //
-//	public void setStartTime(LocalDateTime startTime) {
-//		this.startTime = startTime;
+//	public void setStartDate(LocalDate startDate) {
+//		this.startDate = startDate;
 //	}
-//
+
+	public LocalDateTime getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(LocalDateTime startTime) {
+		this.startTime = startTime;
+	}
+
 //	public LocalDateTime getEndTime() {
 //		return endTime;
 //	}

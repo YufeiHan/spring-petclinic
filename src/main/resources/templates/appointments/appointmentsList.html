@@ -10,14 +10,14 @@
 <table id="appointments" class="table table-striped">
   <thead>
   <tr>
-    <th>Start Date</th>
-    <th>End Date</th>
+    <th>Date Time</th>
+    <th></th>
     <th>Description</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="appointment : ${appointments}">
-    <td th:text="${appointment.startDate}"></td>
+    <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd hh:mm a')}"></td>
     <td></td>
     <td th:text="${appointment.description}"></td>
   </tr>

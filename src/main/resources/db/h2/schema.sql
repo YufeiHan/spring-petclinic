@@ -68,8 +68,8 @@ CREATE TABLE appointments (
   id          INTEGER IDENTITY PRIMARY KEY,
   pet_id      INTEGER NOT NULL,
   vet_id      INTEGER NOT NULL,
-  start_date  DATE,
---   start_time  DATETIME,
+--   start_date  DATE,
+  start_time  DATETIME,
 --   end_time    DATETIME,
   description VARCHAR(255)
 );

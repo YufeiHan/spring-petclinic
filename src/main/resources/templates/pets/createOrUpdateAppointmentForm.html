@@ -6,11 +6,10 @@
   <th:block th:if="${appointment['new']}">New </th:block> Appointment
 </h2>
 
-<b>Pet</b>
 <table class="table table-striped">
   <thead>
   <tr>
-    <th>Name</th>
+    <th>Pet Name</th>
     <th>Birth Date</th>
     <th>Type</th>
     <th>Owner</th>
@@ -26,29 +25,53 @@
   </tr>
 </table>
 
-<form th:object="${appointment}" class="form-horizontal" method="post">
-  <div class="form-group has-feedback">
-    <input th:replace="~{fragments/inputField :: input ('Date', 'startDate', 'date')}"  />
-    <input th:replace="~{fragments/inputField :: input ('Description', 'description', 'text')}" />
+<form th:object="${appointment}" id="app_form" class="form-horizontal" method="post">
 
-    <div class="form-group">
-      <label class="col-sm-2 control-label">Vet</label>
-      <div class="col-sm-10">
-        <div>
-          <select id="vetId" name="vetId" class="form-control">
-            <option th:each="item : ${vetsList}" th:value="${item.id}"
-                    th:text="${item.firstName} + ' ' + ${item.lastName}">option 1</option>
-          </select>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">Select a Vet</label>
+    <div class="col-sm-10">
+      <div>
+        <select id="vetId" name="vetId" class="form-control" onchange="javascript:loadAvailableTime()">
+          <option th:each="item : ${vetsList}" th:value="${item.id}"
+                  th:text="${item.firstName} + ' ' + ${item.lastName}">option 1</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="form-group has-feedback">
+    <label class="col-sm-2 control-label">Pick a Date</label>
+    <div class="col-sm-10">
+      <div class="input-group date" style="width: 100%;">
+        <input type="text" class="form-control" id="app_date" name="app_date" autocomplete="off" onchange="javascript:loadAvailableTime()"/>
+        <div class="input-group-append">
+          <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
         </div>
-        <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
       </div>
     </div>
   </div>
 
   <div class="form-group">
+    <label class="col-sm-2 control-label">Pick a Time</label>
+    <div class="col-sm-10">
+      <div>
+        <select id="app_time" name="app_time" class="form-control">
+          <option value="-1"></option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+    <input th:replace="~{fragments/inputField :: input ('Date', 'startTime', 'datetime')}"  />
+    <input th:replace="~{fragments/inputField :: input ('Description', 'description', 'text')}" />
+
+
+
+  <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
       <input type="hidden" name="petId" th:value="${pet.id}" />
-      <button class="btn btn-default" type="submit">Add Appointment</button>
+      <button class="btn btn-default" onclick="javascript:addAppointment();">Add Appointment</button>
     </div>
   </div>
 </form>
@@ -57,16 +80,72 @@
 <b>Previous Appointments</b>
 <table class="table table-striped">
   <tr>
-    <th>Date</th>
+    <th>Date Time</th>
     <th>Vet</th>
     <th>Description</th>
   </tr>
   <tr th:if="${!appointment['new']}" th:each="appointment : ${pet.appointments}">
-    <td th:text="${#temporals.format(appointment.startDate, 'yyyy-MM-dd')}"></td>
+    <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd hh:mm a')}"></td>
     <td th:text="${appointment.vetName}"></td>
     <td th:text=" ${appointment.description}"></td>
   </tr>
 </table>
+
+<div id="resultsBlock">
+
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.standalone.min.css"
+      integrity="sha512-TQQ3J4WkE/rwojNFo6OJdyu6G8Xe9z8rMrlF9y7xpFbQfW5g8aSWcygCQ4vqRiJqFsDsE1T6MoAOMJkFXlrI9A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"
+        integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+  $('.input-group.date').datepicker({
+    format: "yyyy-mm-dd",
+    todayBtn: "linked",
+    forceParse: false,
+    daysOfWeekDisabled: "0,6",
+    autoclose: true,
+    todayHighlight: true
+  });
+
+  function loadAvailableTime() {
+    let selectedDate = $("#app_date").val();
+    if (selectedDate.length == 0) {
+      clearSelectTimeOptions();
+      return;
+    }
+
+    let url = "/appointments/checktime?vetId=" + $("#vetId").val() + "&date=" + $("#app_date").val();
+    $.get(
+      url,
+      val => val.length == 0 ? clearSelectTimeOptions() : loadSelectTimeOptions(val)
+    );
+  }
+
+  function clearSelectTimeOptions() {
+    let $app_time_select = $("#app_time");
+    $app_time_select.empty(); // remove old options
+    $app_time_select.append($("<option></option>").attr("value", "-1").text(""));
+  }
+
+  function loadSelectTimeOptions(options) {
+    let $app_time_select = $("#app_time");
+    $app_time_select.empty(); // remove old options
+    for (let i = 0; i < options.length; i++) {
+      $app_time_select.append($("<option></option>").attr("value", options[i][0]).text(options[i][1]));
+    }
+  }
+
+  function addAppointment() {
+    $("#startTime").val($("#app_date").val() + " " + $("#app_time").val());
+    $("#app_form").submit();
+  }
+</script>
 
 </body>
 </html>
