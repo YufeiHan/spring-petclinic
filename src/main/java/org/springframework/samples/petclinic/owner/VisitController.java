@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.owner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.samples.petclinic.appointment.Appointment;
 import org.springframework.samples.petclinic.appointment.AppointmentRepository;
+import org.springframework.samples.petclinic.appointment.FullyBookedDate;
+import org.springframework.samples.petclinic.appointment.FullyBookedDateRepository;
 import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.samples.petclinic.visit.Visit;
@@ -28,8 +30,12 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Juergen Hoeller
@@ -37,6 +43,7 @@ import java.util.Map;
  * @author Arjen Poutsma
  * @author Michael Isvy
  * @author Dave Syer
+ * @author Yufei Han
  */
 @Controller
 class VisitController {
@@ -45,13 +52,17 @@ class VisitController {
 	private final VisitRepository visitRepository;
 	private final AppointmentRepository appointmentRepository;
 	private final VetRepository vetRepository;
+	private final FullyBookedDateRepository fullyBookedDateRepository;
 
 	@Autowired
-	public VisitController(PetRepository petRepository, VisitRepository visitRepository, AppointmentRepository appointmentRepository, VetRepository vetRepository) {
+	public VisitController(PetRepository petRepository, VisitRepository visitRepository,
+						   AppointmentRepository appointmentRepository, VetRepository vetRepository,
+						   FullyBookedDateRepository fullyBookedDateRepository) {
 		this.petRepository = petRepository;
 		this.visitRepository = visitRepository;
 		this.appointmentRepository = appointmentRepository;
 		this.vetRepository = vetRepository;
+		this.fullyBookedDateRepository = fullyBookedDateRepository;
 	}
 
 	@InitBinder
@@ -116,18 +127,56 @@ class VisitController {
 			return "pets/createOrUpdateAppointmentForm";
 		}
 		appointmentRepository.save(appointment);
+		refreshFullyBookedDateStatus(appointment.getVetId(), appointment.getStartTime());
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@RequestMapping("/owners/{ownerId}/pets/*/appointments/{appointmentId}/delete")
 	public String deleteAppointmentByIdFromOwner(@PathVariable Integer appointmentId) {
+		Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
+		if (!appointmentOptional.isPresent()) {
+			return "redirect:/owners/{ownerId}";
+		}
+
 		appointmentRepository.deleteById(appointmentId);
+		Appointment appointment = appointmentOptional.get();
+		refreshFullyBookedDateStatus(appointment.getVetId(), appointment.getStartTime());
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@RequestMapping("/vets/{vetId}/appointments/{appointmentId}/delete")
 	public String deleteAppointmentByIdFromVet(@PathVariable Integer appointmentId) {
+		Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
+		if (appointmentOptional.isPresent()) {
+			return "redirect:/vets/{vetId}";
+		}
+
 		appointmentRepository.deleteById(appointmentId);
+		Appointment appointment = appointmentOptional.get();
+		refreshFullyBookedDateStatus(appointment.getVetId(), appointment.getStartTime());
 		return "redirect:/vets/{vetId}";
+	}
+
+	private void refreshFullyBookedDateStatus(Integer vetId, LocalDateTime startTime) {
+		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId, startTime.toLocalDate(), startTime.toLocalDate());
+		boolean isFullyBookedBefore = fullyBookedDates.size() == 1;
+
+		LocalDateTime dateFrom = startTime.withHour(7).withMinute(59);
+		LocalDateTime dateTo = startTime.withHour(17).withMinute(01);
+		List<Appointment> bookedAppointments = appointmentRepository.findAppointmentByVetId(vetId, dateFrom, dateTo);
+		boolean isFullyBookedAfter = bookedAppointments.size() >= 9;
+
+		if (isFullyBookedBefore == isFullyBookedAfter) {
+			return;
+		}
+		if (isFullyBookedAfter) {
+			FullyBookedDate fullyBookedDate = new FullyBookedDate();
+			fullyBookedDate.setVetId(vetId);
+			fullyBookedDate.setBookedDate(startTime.toLocalDate());
+			fullyBookedDateRepository.save(fullyBookedDate);
+		} else {
+			fullyBookedDateRepository.deleteFullyBookedDateByVetIdAndBookedDate(vetId, startTime.toLocalDate());
+		}
+
 	}
 }

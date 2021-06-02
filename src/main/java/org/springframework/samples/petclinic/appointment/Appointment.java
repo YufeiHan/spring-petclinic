@@ -24,14 +24,6 @@ public class Appointment extends BaseEntity {
 	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm a")
 	private LocalDateTime startTime;
 
-//	@Column(name = "end_time")
-//	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm a")
-//	private LocalDateTime endTime;
-
-//	@Column(name = "start_date")
-//	@DateTimeFormat(pattern = "yyyy-MM-dd")
-//	private LocalDate startDate;
-
 	@NotEmpty
 	@Column(name = "description")
 	private String description;
@@ -51,14 +43,6 @@ public class Appointment extends BaseEntity {
 	@Transient
 	private String ownerName;
 
-//	public LocalDate getStartDate() {
-//		return startDate;
-//	}
-//
-//	public void setStartDate(LocalDate startDate) {
-//		this.startDate = startDate;
-//	}
-
 	public LocalDateTime getStartTime() {
 		return startTime;
 	}
@@ -66,14 +50,6 @@ public class Appointment extends BaseEntity {
 	public void setStartTime(LocalDateTime startTime) {
 		this.startTime = startTime;
 	}
-
-//	public LocalDateTime getEndTime() {
-//		return endTime;
-//	}
-//
-//	public void setEndTime(LocalDateTime endTime) {
-//		this.endTime = endTime;
-//	}
 
 	public String getDescription() {
 		return description;

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository class for <code>Appointment</code> domain objects All method names are compliant
@@ -30,6 +31,8 @@ public interface AppointmentRepository extends Repository<Appointment, Integer> 
 
 	Collection<Appointment> findAll() throws DataAccessException;
 
+	Optional<Appointment> findById(Integer id);
+
 	List<Appointment> findByPetId(Integer petId);
 
 	List<Appointment> findByVetId(Integer vetId);
@@ -37,7 +40,7 @@ public interface AppointmentRepository extends Repository<Appointment, Integer> 
 	void deleteById(Integer id);
 
 	@Query("SELECT appointment FROM Appointment appointment " +
-		"WHERE appointment.vetId =:vetId and appointment.startTime > :dateFrom AND appointment.startTime < :dateTo")
+			"WHERE appointment.vetId =:vetId and appointment.startTime > :dateFrom AND appointment.startTime < :dateTo")
 	@Transactional(readOnly = true)
 	List<Appointment> findAppointmentByVetId(@Param("vetId") Integer vetId,
 											 @Param("dateFrom") LocalDateTime dateFrom,

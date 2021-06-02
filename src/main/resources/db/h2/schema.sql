@@ -68,8 +68,19 @@ CREATE TABLE appointments (
   id          INTEGER IDENTITY PRIMARY KEY,
   pet_id      INTEGER NOT NULL,
   vet_id      INTEGER NOT NULL,
---   start_date  DATE,
   start_time  DATETIME,
---   end_time    DATETIME,
   description VARCHAR(255)
 );
+ALTER TABLE appointments ADD CONSTRAINT fk_appointments_pets FOREIGN KEY (pet_id) REFERENCES pets (id);
+ALTER TABLE appointments ADD CONSTRAINT fk_appointments_vets FOREIGN KEY (vet_id) REFERENCES vets (id);
+CREATE INDEX appointments_pet_id ON appointments (pet_id);
+CREATE INDEX appointments_vet_id ON appointments (vet_id);
+
+CREATE TABLE fully_booked_date (
+    id          INTEGER IDENTITY PRIMARY KEY,
+    vet_id      INTEGER NOT NULL,
+    booked_date DATE
+);
+ALTER TABLE fully_booked_date ADD CONSTRAINT fk_fully_booked_date_vets FOREIGN KEY (vet_id) REFERENCES vets (id);
+CREATE INDEX fully_booked_date_vet_id ON fully_booked_date (vet_id);
+CREATE INDEX fully_booked_date_booked_date ON fully_booked_date (booked_date);

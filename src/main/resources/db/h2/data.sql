@@ -54,9 +54,11 @@ INSERT INTO visits VALUES (4, 7, '2013-01-04', 'spayed');
 INSERT INTO visits VALUES (5, 1, '2020-01-04', 'check 1 visit');
 INSERT INTO visits VALUES (6, 1, '2020-01-05', 'check 2 visit');
 
-INSERT INTO appointments VALUES (1, 4, 1, '2021-06-01 08:00:00', 'spayed');
-INSERT INTO appointments VALUES (2, 4, 1, '2021-06-01 10:00:00', 'vaccine');
--- INSERT INTO appointments VALUES (1, 4, 1, '2021-06-01 08:00:00', '2021-06-01 09:00:00', 'spayed');
--- INSERT INTO appointments VALUES (2, 4, 1, '2021-06-01 10:00:00', '2021-06-01 11:00:00', 'vaccine');
--- INSERT INTO appointments VALUES (1, 1, 1, '2021-06-01', 'spayed appt');
--- INSERT INTO appointments VALUES (2, 1, 1, '2021-06-02', 'vaccine appt');
+INSERT INTO appointments VALUES (1, 1, 1, '2021-06-04 08:00:00', 'spayed');
+INSERT INTO appointments VALUES (2, 2, 1, '2021-06-04 09:00:00', 'vaccine');
+INSERT INTO appointments VALUES (3, 3, 1, '2021-06-04 10:00:00', 'vaccine');
+INSERT INTO appointments VALUES (4, 4, 1, '2021-06-04 11:00:00', 'vaccine');
+
+
+INSERT INTO fully_booked_date VALUES (1, 1, '2021-06-03');
+INSERT INTO fully_booked_date VALUES (2, 1, '2021-06-04');

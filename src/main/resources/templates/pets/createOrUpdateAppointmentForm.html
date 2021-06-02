@@ -60,6 +60,9 @@
           <option value="-1"></option>
         </select>
       </div>
+      <div id="pick_time_message" style="display:none; margin-top: 5px; color: red;">
+        Sorry, there is no available time for the date you picked.
+      </div>
     </div>
   </div>
 
@@ -104,11 +107,13 @@
         integrity="sha512-T/tUfKSV1bihCnd+MxKD0Hm1uBBroVYBOYSk1knyvQ9VyZJpc/ALb4P0r6ubwVPSGB2GvjeoMAJJImBG12TiaQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
-  $('.input-group.date').datepicker({
+  $("#app_date").datepicker({
+    startDate: new Date(),
     format: "yyyy-mm-dd",
     todayBtn: "linked",
     forceParse: false,
     daysOfWeekDisabled: "0,6",
+    // datesDisabled: ['2021-06-23', '2021-06-24'],
     autoclose: true,
     todayHighlight: true
   });
@@ -120,7 +125,7 @@
       return;
     }
 
-    let url = "/appointments/checktime?vetId=" + $("#vetId").val() + "&date=" + $("#app_date").val();
+    let url = "/appointments/checkTime?vetId=" + $("#vetId").val() + "&date=" + $("#app_date").val();
     $.get(
       url,
       val => val.length == 0 ? clearSelectTimeOptions() : loadSelectTimeOptions(val)
@@ -131,6 +136,20 @@
     let $app_time_select = $("#app_time");
     $app_time_select.empty(); // remove old options
     $app_time_select.append($("<option></option>").attr("value", "-1").text(""));
+
+    let nextDateRange = 30;
+    let url = "/appointments/checkNextDate?vetId=" + $("#vetId").val() + "&date=" + $("#app_date").val() + "&nextDateRange=" + nextDateRange;
+    $.get(
+      url,
+      val => {
+        if (val == "Not Found") {
+          $("#pick_time_message").html("Sorry, there is no available time for the next " + nextDateRange + " days of the date you selected. Please try another future date.");
+        } else {
+          $("#pick_time_message").html("Sorry, there is no available time for the date you picked. The next available day is " + val + ".");
+        }
+        $("#pick_time_message").show();
+      }
+    );
   }
 
   function loadSelectTimeOptions(options) {
@@ -139,6 +158,8 @@
     for (let i = 0; i < options.length; i++) {
       $app_time_select.append($("<option></option>").attr("value", options[i][0]).text(options[i][1]));
     }
+    $("#pick_time_message").html("");
+    $("#pick_time_message").hide();
   }
 
   function addAppointment() {
