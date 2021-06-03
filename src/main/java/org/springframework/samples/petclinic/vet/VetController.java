@@ -26,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -40,12 +41,16 @@ class VetController {
 	private static final String VIEWS_VET_CREATE_OR_UPDATE_FORM = "vets/createOrUpdateVetForm";
 
 	private final VetRepository vetRepository;
+
 	private final SpecialtyRepository specialtyRepository;
+
 	private final AppointmentRepository appointmentRepository;
+
 	private final PetRepository petRepository;
 
 	@Autowired
-	public VetController(VetRepository clinicService, SpecialtyRepository specialtyRepository, AppointmentRepository appointmentRepository, PetRepository petRepository) {
+	public VetController(VetRepository clinicService, SpecialtyRepository specialtyRepository,
+			AppointmentRepository appointmentRepository, PetRepository petRepository) {
 		this.vetRepository = clinicService;
 		this.specialtyRepository = specialtyRepository;
 		this.appointmentRepository = appointmentRepository;
@@ -103,9 +108,33 @@ class VetController {
 	@GetMapping("/vets/{vetId}")
 	public ModelAndView showVet(@PathVariable("vetId") Integer vetId) {
 		ModelAndView mav = new ModelAndView("vets/vetDetails");
-		Vet vet = vetRepository.findById(vetId);
 
-		Collection<Appointment> appointments = appointmentRepository.findByVetId(vetId);
+		Vet vet = vetRepository.findById(vetId);
+		mav.addObject(vet);
+		// vet.setAppointmentInternal(appointments);
+
+		LocalDateTime todayFrom = LocalDateTime.now().withHour(7).withMinute(59);
+		LocalDateTime todayTo = LocalDateTime.now().withHour(17).withMinute(01);
+		Collection<Appointment> appointments = appointmentRepository.findAppointmentByVetId(vetId, todayFrom, todayTo);
+		loadAppointmentInfo(appointments);
+
+		LocalDateTime tomorrow = LocalDateTime.now().plusDays(1).withHour(7).withMinute(59);
+		Collection<Appointment> appointments_upcoming = appointmentRepository.findUpcomingAppointmentByVetId(vetId, tomorrow);
+		loadAppointmentInfo(appointments_upcoming);
+
+		LocalDateTime yesterday = LocalDateTime.now().plusDays(-1).withHour(17).withMinute(01);
+		Collection<Appointment> appointments_past = appointmentRepository.findPastAppointmentByVetId(vetId, yesterday);
+		loadAppointmentInfo(appointments_past);
+
+
+		mav.addObject("appointments_today", appointments);
+		mav.addObject("appointments_upcoming", appointments_upcoming);
+		mav.addObject("appointments_past", appointments_past);
+
+		return mav;
+	}
+
+	private void loadAppointmentInfo(Collection<Appointment> appointments) {
 		for (Appointment appointment : appointments) {
 			Pet pet = petRepository.findById(appointment.getPetId());
 			appointment.setPetName(pet.getName());
@@ -113,9 +142,6 @@ class VetController {
 			Owner owner = pet.getOwner();
 			appointment.setOwnerName(owner.getFirstName() + " " + owner.getLastName());
 		}
-		vet.setAppointmentInternal(appointments);
-
-		mav.addObject(vet);
-		return mav;
 	}
+
 }

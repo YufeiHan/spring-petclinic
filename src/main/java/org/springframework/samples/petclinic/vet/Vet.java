@@ -36,24 +36,6 @@ import java.util.*;
 @Table(name = "vets")
 public class Vet extends Person {
 
-//	public void setSpecialties(String[] specialties) {
-//		this.specialties = new HashSet<>();
-//		Specialty radiology = new Specialty();
-//		radiology.setId(1);
-//		radiology.setName("radiology");
-//		this.addSpecialty(radiology);
-//
-////		for (String str : specialties) {
-////			this.specialties.add(new Specialty(str));
-////		}
-//		System.out.println("-----------------");
-//		System.out.println(specialties.length);
-//	}
-//
-//	public void setSpecialties(Set<Specialty> specialties) {
-//		this.specialties = specialties;
-//	}
-
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
 			inverseJoinColumns = @JoinColumn(name = "specialty_id"))
@@ -109,4 +91,5 @@ public class Vet extends Person {
 		getAppointmentsInternal().add(appointment);
 		appointment.setPetId(this.getId());
 	}
+
 }

@@ -122,4 +122,5 @@ public class Pet extends NamedEntity {
 		getAppointmentsInternal().add(appointment);
 		appointment.setPetId(this.getId());
 	}
+
 }

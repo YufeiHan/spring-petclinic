@@ -20,12 +20,13 @@ import java.util.*;
 public class AppointmentController {
 
 	private final AppointmentRepository appointmentRepository;
+
 	private final FullyBookedDateRepository fullyBookedDateRepository;
 
 	private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 2021-06-01
 
-
-	public AppointmentController(AppointmentRepository appointmentRepository, FullyBookedDateRepository fullyBookedDateRepository) {
+	public AppointmentController(AppointmentRepository appointmentRepository,
+			FullyBookedDateRepository fullyBookedDateRepository) {
 		this.appointmentRepository = appointmentRepository;
 		this.fullyBookedDateRepository = fullyBookedDateRepository;
 	}
@@ -40,7 +41,7 @@ public class AppointmentController {
 	@GetMapping("/appointments/checkTime")
 	// http://localhost:8080/appointments/checkTime?vetId=1&date=2021-06-01
 	public @ResponseBody List<List<String>> showVetAvailableTimeList(@RequestParam Integer vetId,
-																	 @RequestParam String date) {
+			@RequestParam String date) {
 		List<List<String>> availableTimeList = new ArrayList<>();
 
 		LocalDate localDate = LocalDate.parse(date, dateFormatter);
@@ -56,7 +57,8 @@ public class AppointmentController {
 
 	// return a set of booked days in the date range (inclusive) for a vet
 	private Set<String> getBookedDaysWithin(Integer vetId, LocalDate dateFrom, LocalDate dateTo) {
-		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId, dateFrom, dateTo);
+		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId, dateFrom,
+				dateTo);
 
 		Set<String> bookedDates = new HashSet<>();
 		for (LocalDate currDate : fullyBookedDates) {
@@ -66,12 +68,14 @@ public class AppointmentController {
 	}
 
 	private Set<String> getBookedTimeOfADay(Integer vetId, String date) {
-		DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 2021-06-01 13:00
+		DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 2021-06-01
+																									// 13:00
 		LocalDateTime dateFrom = LocalDateTime.parse(date + " 07:59", fullDateTimeFormatter);
 		LocalDateTime dateTo = LocalDateTime.parse(date + " 17:01", fullDateTimeFormatter);
 		List<Appointment> bookedAppointments = appointmentRepository.findAppointmentByVetId(vetId, dateFrom, dateTo);
 
-		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00 AM
+		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00
+																							// AM
 		Set<String> bookedValues = new HashSet<>();
 		for (Appointment appointment : bookedAppointments) {
 			bookedValues.add(appointment.getStartTime().format(selectValueFormatter));
@@ -89,8 +93,10 @@ public class AppointmentController {
 			hourOfTheDay = Math.max(8, today.getHour() + 1);
 		}
 
-		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00 AM
-		DateTimeFormatter selectDisplayFormatter = DateTimeFormatter.ofPattern("h:mm a"); // 8:00 AM
+		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00
+																							// AM
+		DateTimeFormatter selectDisplayFormatter = DateTimeFormatter.ofPattern("h:mm a"); // 8:00
+																							// AM
 		for (; hourOfTheDay < 17; hourOfTheDay++) {
 			LocalTime time = LocalTime.of(hourOfTheDay, 0, 0);
 			String valueText = time.format(selectValueFormatter);
@@ -106,7 +112,7 @@ public class AppointmentController {
 	@GetMapping("/appointments/checkNextDate")
 	// http://localhost:8080/appointments/checkNextDate?vetId=1&date=2021-06-01&nextDateRange=30
 	public @ResponseBody String showVetNextAvailableDate(@RequestParam Integer vetId, @RequestParam String date,
-														 @RequestParam Integer nextDateRange) {
+			@RequestParam Integer nextDateRange) {
 		LocalDate localDate = LocalDate.parse(date, dateFormatter);
 
 		Set<String> bookedDays = getBookedDaysWithin(vetId, localDate.plusDays(1), localDate.plusDays(nextDateRange));
@@ -124,6 +130,5 @@ public class AppointmentController {
 		}
 		return "Not Found";
 	}
-
 
 }

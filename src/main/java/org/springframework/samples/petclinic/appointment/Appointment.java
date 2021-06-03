@@ -109,4 +109,5 @@ public class Appointment extends BaseEntity {
 	public void setOwnerName(String ownerName) {
 		this.ownerName = ownerName;
 	}
+
 }

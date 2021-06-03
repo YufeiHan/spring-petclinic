@@ -3,21 +3,79 @@
 
 <body>
 
-<h2>Vet</h2>
+<h2>New Vet</h2>
 <form th:object="${vet}" class="form-horizontal" id="add-vet-form" method="post">
   <div class="form-group has-feedback">
-    <input th:replace="~{fragments/inputField :: input ('First Name', 'firstName', 'text')}" />
-    <input th:replace="~{fragments/inputField :: input ('Last Name', 'lastName', 'text')}" />
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">First Name</label>
+      <div class="col-sm-10">
+        <div>
+          <input class="form-control" type="text" id="firstName" name="firstName" value="" onchange="javascript:validateFirstName()" />
+        </div>
+        <div id="firstname_message" style="display: none; margin-top: 5px; color: red;">Please fill in the First Name field.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label">First Name</label>
+      <div class="col-sm-10">
+        <div>
+          <input class="form-control" type="text" id="lastName" name="lastName" value="" onchange="javascript:validateLastName()" />
+        </div>
+        <div id="lastname_message" style="display: none; margin-top: 5px; color: red;">Please fill in the Last Name field.</div>
+      </div>
+    </div>
 
     <input th:replace="~{fragments/multiSelectField :: multiSelect ('Specialties', 'specialties', ${specialtiesList})}" />
   </div>
   <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-      <button
-        th:with="text=${vet['new']} ? 'Add Vet' : 'Update Vet'"
-        class="btn btn-default" type="submit" th:text="${text}">Add Vet</button>
+      <a class="btn btn-default" onclick="javascript:submitForm();"
+         th:with="text=${vet['new']} ? 'Add Vet' : 'Update Vet'" th:text="${text}">Add Vet</a>
     </div>
   </div>
 </form>
+<script>
+  function submitForm() {
+    if (!validateForm()) {
+      return;
+    }
+    $("#add-vet-form").submit();
+  }
+
+  function validateForm() {
+    let isValid = true;
+
+    if (!validateFirstName()) {
+      $("#firstname_message").show();
+      isValid = false;
+    }
+
+    if (!validateLastName()) {
+      $("#lastname_message").show();
+      isValid = false;
+    }
+    return isValid;
+  }
+
+  function validateFirstName() {
+    let first_name = $("#firstName").val();
+    if (first_name.length == 0) {
+      return false;
+    }
+    $("#firstname_message").hide();
+    return true;
+  }
+
+  function validateLastName() {
+    let last_name = $("#lastName").val();
+    if (last_name.length == 0) {
+      return false;
+    }
+    $("#lastname_message").hide();
+    return true;
+  }
+</script>
 </body>
 </html>

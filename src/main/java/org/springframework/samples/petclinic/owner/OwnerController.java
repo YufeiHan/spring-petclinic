@@ -32,8 +32,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Juergen Hoeller
@@ -47,13 +46,16 @@ class OwnerController {
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
 	private final OwnerRepository ownerRepository;
+
 	private final VisitRepository visitRepository;
+
 	private final AppointmentRepository appointmentRepository;
+
 	private final VetRepository vetRepository;
 
 	@Autowired
 	public OwnerController(OwnerRepository clinicService, VisitRepository visitRepository,
-						   AppointmentRepository appointmentRepository, VetRepository vetRepository) {
+			AppointmentRepository appointmentRepository, VetRepository vetRepository) {
 		this.ownerRepository = clinicService;
 		this.visitRepository = visitRepository;
 		this.appointmentRepository = appointmentRepository;
@@ -103,11 +105,13 @@ class OwnerController {
 			// no owners found
 			result.rejectValue("lastName", "notFound", "not found");
 			return "owners/findOwners";
-		} else if (results.size() == 1) {
+		}
+		else if (results.size() == 1) {
 			// 1 owner found
 			owner = results.iterator().next();
 			return "redirect:/owners/" + owner.getId();
-		} else {
+		}
+		else {
 			// multiple owners found
 			model.put("selections", results);
 			return "owners/ownersList";
@@ -145,7 +149,13 @@ class OwnerController {
 		Owner owner = this.ownerRepository.findById(ownerId);
 		for (Pet pet : owner.getPets()) {
 			pet.setVisitsInternal(visitRepository.findByPetId(pet.getId()));
-			Collection<Appointment> appointments = appointmentRepository.findByPetId(pet.getId());
+			List<Appointment> appointments = (List<Appointment>) appointmentRepository.findByPetId(pet.getId());
+			Collections.sort(appointments, new Comparator<Appointment>() {
+				@Override
+				public int compare(Appointment o1, Appointment o2) {
+					return o2.getStartTime().compareTo(o1.getStartTime());
+				}
+			});
 			for (Appointment appointment : appointments) {
 				Vet vet = vetRepository.findById(appointment.getVetId());
 				appointment.setVetName(vet.getFirstName() + " " + vet.getLastName());

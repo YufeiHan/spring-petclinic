@@ -10,15 +10,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface FullyBookedDateRepository extends Repository<FullyBookedDate, Integer> {
-	@Query("SELECT fullyBookedDate.bookedDate FROM FullyBookedDate fullyBookedDate " +
-		"WHERE fullyBookedDate.vetId =:vetId and fullyBookedDate.bookedDate >= :dateFrom AND fullyBookedDate.bookedDate <= :dateTo " +
-		"ORDER BY fullyBookedDate.bookedDate")
+
+	@Query("SELECT fullyBookedDate.bookedDate FROM FullyBookedDate fullyBookedDate "
+			+ "WHERE fullyBookedDate.vetId =:vetId and fullyBookedDate.bookedDate >= :dateFrom AND fullyBookedDate.bookedDate <= :dateTo "
+			+ "ORDER BY fullyBookedDate.bookedDate")
 	@Transactional(readOnly = true)
 	List<LocalDate> findFullyBookedDatesByVetId(@Param("vetId") Integer vetId, @Param("dateFrom") LocalDate dateFrom,
-												@Param("dateTo") LocalDate dateTo);
+			@Param("dateTo") LocalDate dateTo);
 
 	void save(FullyBookedDate fullyBookedDate) throws DataAccessException;
 
 	@Transactional
 	void deleteFullyBookedDateByVetIdAndBookedDate(Integer vetId, LocalDate bookedDate) throws DataAccessException;
+
 }

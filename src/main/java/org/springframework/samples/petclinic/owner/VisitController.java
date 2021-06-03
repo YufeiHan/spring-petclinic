@@ -49,15 +49,19 @@ import java.util.Optional;
 class VisitController {
 
 	private final PetRepository petRepository;
+
 	private final VisitRepository visitRepository;
+
 	private final AppointmentRepository appointmentRepository;
+
 	private final VetRepository vetRepository;
+
 	private final FullyBookedDateRepository fullyBookedDateRepository;
 
 	@Autowired
 	public VisitController(PetRepository petRepository, VisitRepository visitRepository,
-						   AppointmentRepository appointmentRepository, VetRepository vetRepository,
-						   FullyBookedDateRepository fullyBookedDateRepository) {
+			AppointmentRepository appointmentRepository, VetRepository vetRepository,
+			FullyBookedDateRepository fullyBookedDateRepository) {
 		this.petRepository = petRepository;
 		this.visitRepository = visitRepository;
 		this.appointmentRepository = appointmentRepository;
@@ -158,7 +162,8 @@ class VisitController {
 	}
 
 	private void refreshFullyBookedDateStatus(Integer vetId, LocalDateTime startTime) {
-		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId, startTime.toLocalDate(), startTime.toLocalDate());
+		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId,
+				startTime.toLocalDate(), startTime.toLocalDate());
 		boolean isFullyBookedBefore = fullyBookedDates.size() == 1;
 
 		LocalDateTime dateFrom = startTime.withHour(7).withMinute(59);
@@ -174,9 +179,11 @@ class VisitController {
 			fullyBookedDate.setVetId(vetId);
 			fullyBookedDate.setBookedDate(startTime.toLocalDate());
 			fullyBookedDateRepository.save(fullyBookedDate);
-		} else {
+		}
+		else {
 			fullyBookedDateRepository.deleteFullyBookedDateByVetIdAndBookedDate(vetId, startTime.toLocalDate());
 		}
 
 	}
+
 }

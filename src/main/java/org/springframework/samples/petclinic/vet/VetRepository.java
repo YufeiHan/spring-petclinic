@@ -33,6 +33,7 @@ import java.util.Collection;
  * @author Michael Isvy
  */
 public interface VetRepository extends Repository<Vet, Integer> {
+
 	/**
 	 * Retrieve all <code>Vet</code>s from the data store.
 	 * @return a <code>Collection</code> of <code>Vet</code>s
@@ -45,4 +46,5 @@ public interface VetRepository extends Repository<Vet, Integer> {
 	Vet findById(Integer vetId);
 
 	void save(Vet vet);
+
 }

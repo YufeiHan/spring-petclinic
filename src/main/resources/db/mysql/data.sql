@@ -54,10 +54,12 @@ INSERT IGNORE INTO visits VALUES (4, 7, '2008-09-04', 'spayed');
 INSERT IGNORE INTO visits VALUES (5, 1, '2020-01-04', 'check 1 visit');
 INSERT IGNORE INTO visits VALUES (6, 1, '2020-01-05', 'check 2 visit');
 
-INSERT IGNORE INTO appointments VALUES (1, 1, 1, '2021-06-04 08:00:00', 'spayed');
-INSERT IGNORE INTO appointments VALUES (2, 2, 1, '2021-06-04 09:00:00', 'vaccine');
-INSERT IGNORE INTO appointments VALUES (3, 3, 1, '2021-06-04 10:00:00', 'vaccine');
-INSERT IGNORE INTO appointments VALUES (4, 4, 1, '2021-06-04 11:00:00', 'vaccine');
+INSERT IGNORE INTO appointments VALUES (1, 1, 1, '2021-05-01 08:00:00', 'spayed');
+INSERT IGNORE INTO appointments VALUES (2, 2, 1, '2021-05-04 09:00:00', 'vaccine');
+INSERT IGNORE INTO appointments VALUES (3, 3, 1, '2021-06-02 10:00:00', 'check legs');
+INSERT IGNORE INTO appointments VALUES (4, 4, 1, '2021-06-02 11:00:00', 'check eyes');
+INSERT IGNORE INTO appointments VALUES (5, 5, 1, '2021-06-09 11:00:00', 'vaccine');
+INSERT IGNORE INTO appointments VALUES (6, 6, 1, '2021-06-09 15:00:00', 'vaccine');
 
 INSERT IGNORE INTO fully_booked_date VALUES (1, 1, '2021-06-04');
 INSERT IGNORE INTO fully_booked_date VALUES (2, 1, '2021-06-07');

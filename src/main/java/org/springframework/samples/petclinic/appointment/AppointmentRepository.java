@@ -13,15 +13,16 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Repository class for <code>Appointment</code> domain objects All method names are compliant
- * with Spring Data naming conventions so this interface can easily be extended for Spring
- * Data. See:
+ * Repository class for <code>Appointment</code> domain objects All method names are
+ * compliant with Spring Data naming conventions so this interface can easily be extended
+ * for Spring Data. See:
  * https://docs.spring.io/spring-data/jpa/docs/current/reference/html/#repositories.query-methods.query-creation
  *
  * @author Yufei Han
  */
 
 public interface AppointmentRepository extends Repository<Appointment, Integer> {
+
 	/**
 	 * Save a <code>Appointment</code> to the data store, either inserting or updating it.
 	 * @param appointment the <code>Appointment</code> to save
@@ -39,12 +40,21 @@ public interface AppointmentRepository extends Repository<Appointment, Integer> 
 
 	void deleteById(Integer id);
 
-	@Query("SELECT appointment FROM Appointment appointment " +
-			"WHERE appointment.vetId =:vetId and appointment.startTime > :dateFrom AND appointment.startTime < :dateTo")
+	@Query("SELECT appointment FROM Appointment appointment "
+			+ "WHERE appointment.vetId =:vetId and appointment.startTime > :dateFrom AND appointment.startTime < :dateTo ")
 	@Transactional(readOnly = true)
-	List<Appointment> findAppointmentByVetId(@Param("vetId") Integer vetId,
-											 @Param("dateFrom") LocalDateTime dateFrom,
-											 @Param("dateTo") LocalDateTime dateTo);
+	List<Appointment> findAppointmentByVetId(@Param("vetId") Integer vetId, @Param("dateFrom") LocalDateTime dateFrom,
+			@Param("dateTo") LocalDateTime dateTo);
 
+	@Query("SELECT appointment FROM Appointment appointment " +
+			"WHERE appointment.vetId =:vetId and appointment.startTime < :today " +
+			"ORDER BY appointment.startTime DESC ")
+	@Transactional(readOnly = true)
+	List<Appointment> findPastAppointmentByVetId(@Param("vetId") Integer vetId, @Param("today") LocalDateTime today);
+
+	@Query("SELECT appointment FROM Appointment appointment " +
+		"WHERE appointment.vetId =:vetId and appointment.startTime > :today " +
+		"ORDER BY appointment.startTime ASC ")
+	@Transactional(readOnly = true)
+	List<Appointment> findUpcomingAppointmentByVetId(@Param("vetId") Integer vetId, @Param("today") LocalDateTime today);
 }
-

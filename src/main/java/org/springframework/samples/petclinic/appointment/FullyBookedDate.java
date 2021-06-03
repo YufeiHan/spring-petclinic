@@ -34,4 +34,5 @@ public class FullyBookedDate extends BaseEntity {
 	public void setBookedDate(LocalDate bookedDate) {
 		this.bookedDate = bookedDate;
 	}
+
 }
