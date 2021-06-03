@@ -16,20 +16,24 @@
 
 package org.springframework.samples.petclinic.owner;
 
-import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.samples.petclinic.appointment.AppointmentRepository;
+import org.springframework.samples.petclinic.appointment.FullyBookedDateRepository;
+import org.springframework.samples.petclinic.vet.VetRepository;
+import org.springframework.samples.petclinic.visit.Visit;
 import org.springframework.samples.petclinic.visit.VisitRepository;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * Test class for {@link VisitController}
@@ -45,14 +49,24 @@ class VisitControllerTests {
 	private MockMvc mockMvc;
 
 	@MockBean
-	private VisitRepository visits;
+	private PetRepository petRepository;
 
 	@MockBean
-	private PetRepository pets;
+	private VisitRepository visitRepository;
+
+	@MockBean
+	private AppointmentRepository appointmentRepository;
+
+	@MockBean
+	private VetRepository vetRepository;
+
+	@MockBean
+	private FullyBookedDateRepository fullyBookedDateRepository;
 
 	@BeforeEach
 	void init() {
-		given(this.pets.findById(TEST_PET_ID)).willReturn(new Pet());
+		given(petRepository.findById(TEST_PET_ID)).willReturn(new Pet());
+		given(visitRepository.findByPetId(TEST_PET_ID)).willReturn(new ArrayList<Visit>());
 	}
 
 	@Test

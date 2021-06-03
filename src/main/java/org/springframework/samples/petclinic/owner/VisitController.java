@@ -79,6 +79,12 @@ class VisitController {
 		return vetRepository.findAll();
 	}
 
+	@GetMapping("/owners/*/pets/{petId}/visits/new")
+	public String initNewVisitForm(@PathVariable("petId") Integer petId, Map<String, Object> model) {
+		loadPetWithVisit(petId, model);
+		return "pets/createOrUpdateVisitForm";
+	}
+
 	private void loadPetWithVisit(Integer petId, Map<String, Object> model) {
 		Pet pet = petRepository.findById(petId);
 		pet.setVisitsInternal(visitRepository.findByPetId(petId));
@@ -87,12 +93,6 @@ class VisitController {
 		Visit visit = new Visit();
 		pet.addVisit(visit);
 		model.put("visit", visit);
-	}
-
-	@GetMapping("/owners/*/pets/{petId}/visits/new")
-	public String initNewVisitForm(@PathVariable("petId") Integer petId, Map<String, Object> model) {
-		loadPetWithVisit(petId, model);
-		return "pets/createOrUpdateVisitForm";
 	}
 
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
@@ -179,11 +179,9 @@ class VisitController {
 			fullyBookedDate.setVetId(vetId);
 			fullyBookedDate.setBookedDate(startTime.toLocalDate());
 			fullyBookedDateRepository.save(fullyBookedDate);
-		}
-		else {
+		} else {
 			fullyBookedDateRepository.deleteFullyBookedDateByVetIdAndBookedDate(vetId, startTime.toLocalDate());
 		}
-
 	}
 
 }

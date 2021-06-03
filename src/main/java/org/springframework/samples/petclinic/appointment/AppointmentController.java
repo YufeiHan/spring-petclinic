@@ -31,13 +31,6 @@ public class AppointmentController {
 		this.fullyBookedDateRepository = fullyBookedDateRepository;
 	}
 
-	@GetMapping("/appointments.html")
-	public String showVetList(Map<String, Object> model) {
-		Collection<Appointment> appointments = this.appointmentRepository.findAll();
-		model.put("appointments", appointments);
-		return "appointments/appointmentsList";
-	}
-
 	@GetMapping("/appointments/checkTime")
 	// http://localhost:8080/appointments/checkTime?vetId=1&date=2021-06-01
 	public @ResponseBody List<List<String>> showVetAvailableTimeList(@RequestParam Integer vetId,
@@ -55,7 +48,9 @@ public class AppointmentController {
 		return availableTimeList;
 	}
 
-	// return a set of booked days in the date range (inclusive) for a vet
+	/*
+	 * return a set of booked days in the date range (inclusive) for a vet
+	 */
 	private Set<String> getBookedDaysWithin(Integer vetId, LocalDate dateFrom, LocalDate dateTo) {
 		List<LocalDate> fullyBookedDates = fullyBookedDateRepository.findFullyBookedDatesByVetId(vetId, dateFrom,
 				dateTo);
@@ -68,14 +63,12 @@ public class AppointmentController {
 	}
 
 	private Set<String> getBookedTimeOfADay(Integer vetId, String date) {
-		DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 2021-06-01
-																									// 13:00
+		DateTimeFormatter fullDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"); // 2021-06-01 13:00
 		LocalDateTime dateFrom = LocalDateTime.parse(date + " 07:59", fullDateTimeFormatter);
 		LocalDateTime dateTo = LocalDateTime.parse(date + " 17:01", fullDateTimeFormatter);
 		List<Appointment> bookedAppointments = appointmentRepository.findAppointmentByVetId(vetId, dateFrom, dateTo);
 
-		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00
-																							// AM
+		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00 AM
 		Set<String> bookedValues = new HashSet<>();
 		for (Appointment appointment : bookedAppointments) {
 			bookedValues.add(appointment.getStartTime().format(selectValueFormatter));
@@ -88,15 +81,13 @@ public class AppointmentController {
 
 		int hourOfTheDay = 8;
 		LocalDateTime today = LocalDateTime.now();
-		// if selected today, only provide future timeslot
+		/* if selected today, only provide future timeslot */
 		if (today.format(dateFormatter).equals(date)) {
 			hourOfTheDay = Math.max(8, today.getHour() + 1);
 		}
 
-		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00
-																							// AM
-		DateTimeFormatter selectDisplayFormatter = DateTimeFormatter.ofPattern("h:mm a"); // 8:00
-																							// AM
+		DateTimeFormatter selectValueFormatter = DateTimeFormatter.ofPattern("hh:mm a"); // 08:00 AM
+		DateTimeFormatter selectDisplayFormatter = DateTimeFormatter.ofPattern("h:mm a"); // 8:00 AM
 		for (; hourOfTheDay < 17; hourOfTheDay++) {
 			LocalTime time = LocalTime.of(hourOfTheDay, 0, 0);
 			String valueText = time.format(selectValueFormatter);
