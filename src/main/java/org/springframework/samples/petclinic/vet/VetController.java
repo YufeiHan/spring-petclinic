@@ -26,8 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Juergen Hoeller
@@ -63,7 +62,9 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for Object-Xml mapping
 		Vets vets = new Vets();
-		vets.getVetList().addAll(this.vetRepository.findAll());
+		List<Vet> allVets = (List<Vet>) vetRepository.findAll();
+		Collections.sort(allVets, Comparator.comparing(vet -> vet.getFirstName()));
+		vets.getVetList().addAll(allVets);
 		model.put("vets", vets);
 		return "vets/vetList";
 	}
@@ -108,6 +109,7 @@ class VetController {
 		for (Appointment appointment : appointments) {
 			Pet pet = petRepository.findById(appointment.getPetId());
 			appointment.setPetName(pet.getName());
+			appointment.setPetTypeName(pet.getType().getName());
 			Owner owner = pet.getOwner();
 			appointment.setOwnerName(owner.getFirstName() + " " + owner.getLastName());
 		}

@@ -15,12 +15,12 @@
  */
 package org.springframework.samples.petclinic.owner;
 
-import java.util.Collection;
-
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collection;
 
 /**
  * Repository class for <code>Owner</code> domain objects All method names are compliant
@@ -42,7 +42,7 @@ public interface OwnerRepository extends Repository<Owner, Integer> {
 	 * @return a Collection of matching {@link Owner}s (or an empty Collection if none
 	 * found)
 	 */
-	@Query("SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.lastName LIKE :lastName%")
+	@Query("SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.lastName LIKE :lastName% ORDER BY owner.firstName")
 	@Transactional(readOnly = true)
 	Collection<Owner> findByLastName(@Param("lastName") String lastName);
 

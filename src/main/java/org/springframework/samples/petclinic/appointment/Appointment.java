@@ -41,6 +41,9 @@ public class Appointment extends BaseEntity {
 	private String petName;
 
 	@Transient
+	private String petTypeName;
+
+	@Transient
 	private String ownerName;
 
 	public LocalDateTime getStartTime() {
@@ -89,6 +92,14 @@ public class Appointment extends BaseEntity {
 
 	public void setPetName(String petName) {
 		this.petName = petName;
+	}
+
+	public String getPetTypeName() {
+		return petTypeName;
+	}
+
+	public void setPetTypeName(String petTypeName) {
+		this.petTypeName = petTypeName;
 	}
 
 	public String getOwnerName() {

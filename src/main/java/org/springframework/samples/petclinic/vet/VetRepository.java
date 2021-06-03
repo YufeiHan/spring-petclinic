@@ -17,6 +17,7 @@ package org.springframework.samples.petclinic.vet;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.repository.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 
@@ -36,8 +37,9 @@ public interface VetRepository extends Repository<Vet, Integer> {
 	 * Retrieve all <code>Vet</code>s from the data store.
 	 * @return a <code>Collection</code> of <code>Vet</code>s
 	 */
-	// @Transactional(readOnly = true)
+
 	// @Cacheable("vets")
+	@Transactional(readOnly = true)
 	Collection<Vet> findAll() throws DataAccessException;
 
 	Vet findById(Integer vetId);

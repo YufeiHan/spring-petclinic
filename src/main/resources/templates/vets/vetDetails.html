@@ -25,24 +25,34 @@
 <table class="table table-striped">
   <thead>
   <tr>
-    <th>Date Time</th>
-    <th>Owner</th>
-    <th>Pet</th>
+    <th style="width: 180px;">Date Time</th>
+    <th style="width: 220px;">Owner Name</th>
+    <th style="width: 80px;">Pet Type</th>
+    <th style="width: 150px;">Pet Name</th>
     <th>Description</th>
-    <th></th>
+    <th style="width: 70px;">Action</th>
   </tr>
   </thead>
   <tbody>
   <tr th:each="appointment : ${vet.appointments}">
     <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd hh:mm a')}"></td>
     <td th:text="${appointment?.ownerName}"></td>
+    <td th:text="${appointment?.petTypeName}"></td>
     <td th:text="${appointment?.petName}"></td>
     <td th:text="${appointment?.description}"></td>
-    <td><a th:href="@{/vets/{vetId}/appointments/{appointmentId}/delete(vetId=${vet.id},appointmentId=${appointment.id})}">Cancel</a></td>
+    <td><a class="btn btn-default btn-xs" th:onclick="|cancelConfirm('${vet.id}', '${appointment.id}')|">Cancel</a></td>
   </tr>
   </tbody>
 </table>
 
+<script>
+  function cancelConfirm(vet_id, appointment_id) {
+    let confirmAlert = confirm("Are you sure you want to cancel this appointment?");
+    if (confirmAlert == true) {
+      window.location.href = "/vets/"+vet_id+"/appointments/"+appointment_id+"/delete";
+    }
+  }
+</script>
 </body>
 
 </html>

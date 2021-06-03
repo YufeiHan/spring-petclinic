@@ -60,5 +60,5 @@ INSERT INTO appointments VALUES (3, 3, 1, '2021-06-04 10:00:00', 'vaccine');
 INSERT INTO appointments VALUES (4, 4, 1, '2021-06-04 11:00:00', 'vaccine');
 
 
-INSERT INTO fully_booked_date VALUES (1, 1, '2021-06-03');
-INSERT INTO fully_booked_date VALUES (2, 1, '2021-06-04');
+INSERT INTO fully_booked_date VALUES (1, 1, '2021-06-04');
+INSERT INTO fully_booked_date VALUES (2, 1, '2021-06-07');

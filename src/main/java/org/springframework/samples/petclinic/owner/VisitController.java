@@ -147,7 +147,7 @@ class VisitController {
 	@RequestMapping("/vets/{vetId}/appointments/{appointmentId}/delete")
 	public String deleteAppointmentByIdFromVet(@PathVariable Integer appointmentId) {
 		Optional<Appointment> appointmentOptional = appointmentRepository.findById(appointmentId);
-		if (appointmentOptional.isPresent()) {
+		if (!appointmentOptional.isPresent()) {
 			return "redirect:/vets/{vetId}";
 		}
 

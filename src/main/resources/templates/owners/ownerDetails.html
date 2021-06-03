@@ -73,17 +73,17 @@
           <table class="table-condensed">
             <thead>
             <tr>
-              <th>Appointment Time</th>
-              <th>Vet</th>
+              <th style="width: 180px;">Appointment Time</th>
+              <th>Vet Name</th>
               <th>Description</th>
-              <th></th>
+              <th style="width: 70px;">Action</th>
             </tr>
             </thead>
             <tr th:each="appointment : ${pet.appointments}">
               <td th:text="${#temporals.format(appointment.startTime, 'yyyy-MM-dd hh:mm a')}"></td>
               <td th:text="${appointment?.vetName}"></td>
               <td th:text="${appointment?.description}"></td>
-              <td><a th:href="@{/owners/{ownerId}/pets/{petId}/appointments/{appointmentId}/delete(ownerId=${owner.id},petId=${pet.id},appointmentId=${appointment.id})}">Cancel</a></td>
+              <td><a class="btn btn-default btn-xs" th:onclick="|cancelConfirm('${owner.id}', '${pet.id}', '${appointment.id}')|">Cancel</a></td>
             </tr>
             <tr>
               <td colspan="2"><a th:href="@{{ownerId}/pets/{petId}/appointments/new(ownerId=${owner.id},petId=${pet.id})}">Add Appointment</a></td>
@@ -91,9 +91,16 @@
           </table>
         </td>
       </tr>
-  
     </table>
-  
+
+    <script>
+      function cancelConfirm(owner_id, pet_id, appointment_id) {
+        let confirmAlert = confirm("Are you sure you want to cancel this appointment?");
+        if (confirmAlert == true) {
+          window.location.href = "/owners/"+owner_id+"/pets/"+pet_id+"/appointments/"+appointment_id+"/delete";
+        }
+      }
+    </script>
   </body>
 
 </html>
